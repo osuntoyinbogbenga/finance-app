@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mb-8 fade-in">
+    <h1 class="text-3xl font-bold text-gray-800">Financial Reports</h1>
+    <p class="text-gray-600">Analyze your income and expense trends</p>
+</div>
+
+<div class="card-hover bg-white rounded-lg shadow p-6 mb-6 slide-in">
+    <h2 class="text-xl font-bold mb-4"><i class="fas fa-chart-line mr-2"></i>Monthly Trends (Last 6 Months)</h2>
+    {% if monthly_data %}
+    <div class="chart-container">
+        <canvas id="trendsChart"></canvas>
+    </div>
+    {% else %}
+    <div class="text-center py-8 text-gray-500">
+        <i class="fas fa-chart-line text-5xl mb-4 icon-bounce"></i>
+        <p>No transaction data available yet.</p>
+        <p class="text-sm">Add some transactions to see your financial trends.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% if monthly_data %}
+<div class="card-hover bg-white rounded-lg shadow overflow-hidden fade-in">
+    <div class="p-6 border-b">
+        <h2 class="text-xl font-bold"><i class="fas fa-table mr-2"></i>Monthly Summary</h2>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Income</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expenses</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Savings Rate</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for month in monthly_data %}
+                {% set net = month.income - month.expenses %}
+                {% set savings_rate = (net / month.income * 100) if month.income > 0 else 0 %}
+                <tr class="table-row stagger-item hover:bg-gray-50 transition-all">
+                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                        <i class="fas fa-calendar-alt mr-2 text-blue-500"></i>{{ month.month }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="amount-display text-green-600 font-semibold">
+                            <i class="fas fa-arrow-up mr-1"></i>${{ "%.2f"|format(month.income) }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="amount-display text-red-600 font-semibold">
+                            <i class="fas fa-arrow-down mr-1"></i>${{ "%.2f"|format(month.expenses) }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="amount-display font-bold {% if net >= 0 %}text-blue-600{% else %}text-red-600{% endif %}">
+                            {% if net >= 0 %}<i class="fas fa-plus mr-1"></i>{% else %}<i class="fas fa-minus mr-1"></i>{% endif %}
+                            ${{ "%.2f"|format(net|abs) }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-3 py-1 rounded-full text-sm font-semibold transition-all hover:scale-110
+                                     {% if savings_rate >= 20 %}bg-green-100 text-green-800
+                                     {% elif savings_rate >= 10 %}bg-yellow-100 text-yellow-800
+                                     {% else %}bg-red-100 text-red-800{% endif %}">
+                            {% if savings_rate >= 20 %}<i class="fas fa-check-circle mr-1"></i>
+                            {% elif savings_rate >= 10 %}<i class="fas fa-exclamation-circle mr-1"></i>
+                            {% else %}<i class="fas fa-times-circle mr-1"></i>{% endif %}
+                            {{ "%.1f"|format(savings_rate) }}%
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="p-6 bg-gray-50 border-t">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {% set total_income = monthly_data|sum(attribute='income') %}
+            {% set total_expenses = monthly_data|sum(attribute='expenses') %}
+            {% set total_net = total_income - total_expenses %}
+            {% set avg_savings_rate = (total_net / total_income * 100) if total_income > 0 else 0 %}
+            
+            <div class="stat-card bg-white rounded-lg p-4 text-center">
+                <p class="text-sm text-gray-500 mb-1">Total Income</p>
+                <p class="amount-display text-2xl font-bold text-green-600">${{ "%.2f"|format(total_income) }}</p>
+            </div>
+            
+            <div class="stat-card bg-white rounded-lg p-4 text-center">
+                <p class="text-sm text-gray-500 mb-1">Total Expenses</p>
+                <p class="amount-display text-2xl font-bold text-red-600">${{ "%.2f"|format(total_expenses) }}</p>
+            </div>
+            
+            <div class="stat-card bg-white rounded-lg p-4 text-center">
+                <p class="text-sm text-gray-500 mb-1">Average Savings Rate</p>
+                <p class="amount-display text-2xl font-bold {% if avg_savings_rate >= 20 %}text-green-600{% elif avg_savings_rate >= 10 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                    {{ "%.1f"|format(avg_savings_rate) }}%
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if monthly_data %}
+<script>
+    const ctx = document.getElementById('trendsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [{% for m in monthly_data %}'{{ m.month }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            datasets: [
+                {
+                    label: 'Income',
+                    data: [{% for m in monthly_data %}{{ m.income }}{% if not loop.last %},{% endif %}{% endfor %}],
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: '#10B981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                },
+                {
+                    label: 'Expenses',
+                    data: [{% for m in monthly_data %}{{ m.expenses }}{% if not loop.last %},{% endif %}{% endfor %}],
+                    borderColor: '#EF4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: '#EF4444',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15,
+                        font: {
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += '$' + context.parsed.y.toFixed(2);
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toFixed(0);
+                        },
+                        font: {
+                            size: 11
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

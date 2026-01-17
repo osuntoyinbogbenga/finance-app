@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="mb-8 fade-in">
+        <h1 class="text-3xl font-bold text-gray-800">Add Transaction</h1>
+        <p class="text-gray-600">Record a new income or expense</p>
+    </div>
+
+    <div class="card-hover bg-white rounded-lg shadow p-8 slide-in">
+        <form method="POST">
+            <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Category *</label>
+                <select name="category_id" required class="filter-dropdown form-input w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select a category</option>
+                    <optgroup label="Income">
+                        {% for cat in categories if cat.type == 'income' %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                    <optgroup label="Expenses">
+                        {% for cat in categories if cat.type == 'expense' %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Amount *</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-3 text-gray-500 text-lg">$</span>
+                    <input type="number" name="amount" step="0.01" min="0" required 
+                           class="w-full pl-8 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="0.00">
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Date *</label>
+                <input type="date" name="date" required 
+                       value="{{ '%Y-%m-%d'|strftime }}"
+                       class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 font-semibold mb-2">Description</label>
+                <textarea name="description" rows="3"
+                          class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Add a note about this transaction..."></textarea>
+            </div>
+
+            <div class="flex space-x-4">
+                <button type="submit" 
+                        class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                    <i class="fas fa-save mr-2"></i>Save Transaction
+                </button>
+                <a href="{{ url_for('transactions') }}" 
+                   class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 text-center font-semibold">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
