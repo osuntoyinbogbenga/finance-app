@@ -31,7 +31,7 @@
                 <div class="relative">
                     <span class="absolute left-4 top-3 text-gray-500 text-lg">$</span>
                     <input type="number" name="amount" step="0.01" min="0" required 
-                           class="w-full pl-8 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           class="form-input w-full pl-8 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                            placeholder="0.00">
                 </div>
             </div>
@@ -39,24 +39,24 @@
             <div class="mb-6">
                 <label class="block text-gray-700 font-semibold mb-2">Date *</label>
                 <input type="date" name="date" required 
-                       value="{{ '%Y-%m-%d'|strftime }}"
-                       class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                       value="{{ today_date }}"
+                       class="form-input w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
 
             <div class="mb-6">
                 <label class="block text-gray-700 font-semibold mb-2">Description</label>
                 <textarea name="description" rows="3"
-                          class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          class="form-input w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="Add a note about this transaction..."></textarea>
             </div>
 
             <div class="flex space-x-4">
                 <button type="submit" 
-                        class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold">
+                        class="btn-primary flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold">
                     <i class="fas fa-save mr-2"></i>Save Transaction
                 </button>
                 <a href="{{ url_for('transactions') }}" 
-                   class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 text-center font-semibold">
+                   class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 text-center font-semibold transition-all">
                     Cancel
                 </a>
             </div>
