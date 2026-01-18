@@ -442,3 +442,29 @@ html {
 .stagger-item:nth-child(8) { animation-delay: 0.4s; }
 .stagger-item:nth-child(9) { animation-delay: 0.45s; }
 .stagger-item:nth-child(10) { animation-delay: 0.5s; }
+
+/* Profile Dropdown Styles */
+.profile-dropdown {
+    position: relative;
+}
+
+.profile-dropdown button {
+    transition: all 0.3s ease;
+}
+
+.profile-dropdown button:hover {
+    transform: translateY(-2px);
+}
+
+#dropdownMenu {
+    animation: fadeIn 0.3s ease-out;
+    transform-origin: top right;
+}
+
+#dropdownMenu a {
+    transition: all 0.2s ease;
+}
+
+#dropdownMenu a:hover {
+    transform: translateX(5px);
+}

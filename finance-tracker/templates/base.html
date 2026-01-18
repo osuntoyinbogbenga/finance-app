@@ -31,12 +31,25 @@
                     </a>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <span class="text-gray-600 font-medium">
-                        <i class="fas fa-user-circle mr-1"></i>{{ session.username }}
-                    </span>
-                    <a href="{{ url_for('logout') }}" class="btn-primary px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
-                    </a>
+                    <!-- Profile Dropdown -->
+                    <div class="relative profile-dropdown">
+                        <button onclick="toggleDropdown()" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 focus:outline-none transition-all">
+                            <i class="fas fa-user-circle text-2xl"></i>
+                            <span class="font-medium">{{ session.username }}</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border">
+                            <a href="{{ url_for('profile') }}" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 transition-all">
+                                <i class="fas fa-user mr-2"></i>My Profile
+                            </a>
+                            <div class="border-t my-1"></div>
+                            <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-red-600 hover:bg-red-50 transition-all">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -65,6 +78,25 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Dropdown toggle function
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('hidden');
+        }
+        
+        // Close dropdown when clicking outside
+        window.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('dropdownMenu');
+            const button = document.querySelector('.profile-dropdown button');
+            
+            if (dropdown && button && !button.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    </script>
+    
     {% block scripts %}{% endblock %}
 </body>
 </html>

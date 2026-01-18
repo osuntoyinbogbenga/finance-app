@@ -6,7 +6,8 @@ import os
 from functools import wraps
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-in-production'
+# Use environment variable for secret key in production, fallback for development
+app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
 
 # Ensure static folder exists
 if not os.path.exists('static/css'):
@@ -146,21 +147,28 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
+        username_or_email = request.form.get('username')
         password = request.form.get('password')
         
         conn = get_db()
         cursor = conn.cursor()
-        user = cursor.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+        
+        # Try to find user by username OR email
+        user = cursor.execute(
+            'SELECT * FROM users WHERE username = ? OR email = ?', 
+            (username_or_email, username_or_email)
+        ).fetchone()
+        
         conn.close()
         
         if user and check_password_hash(user['password_hash'], password):
             session['user_id'] = user['id']
             session['username'] = user['username']
+            session['email'] = user['email']
             flash('Welcome back!', 'success')
             return redirect(url_for('dashboard'))
         else:
-            flash('Invalid username or password.', 'danger')
+            flash('Invalid username/email or password.', 'danger')
     
     return render_template('login.html')
 
@@ -169,6 +177,42 @@ def logout():
     session.clear()
     flash('You have been logged out.', 'info')
     return redirect(url_for('login'))
+
+@app.route('/profile')
+@login_required
+def profile():
+    user_id = session['user_id']
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Get user info
+    user = cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+    
+    # Get transaction count
+    transaction_count = cursor.execute(
+        'SELECT COUNT(*) as count FROM transactions WHERE user_id = ?', 
+        (user_id,)
+    ).fetchone()['count']
+    
+    # Get category count
+    category_count = cursor.execute(
+        'SELECT COUNT(*) as count FROM categories WHERE user_id = ?', 
+        (user_id,)
+    ).fetchone()['count']
+    
+    # Get first transaction date
+    first_transaction = cursor.execute(
+        'SELECT MIN(date) as first_date FROM transactions WHERE user_id = ?', 
+        (user_id,)
+    ).fetchone()
+    
+    conn.close()
+    
+    return render_template('profile.html', 
+                         user=user,
+                         transaction_count=transaction_count,
+                         category_count=category_count,
+                         first_transaction=first_transaction)
 
 @app.route('/dashboard')
 @login_required
@@ -309,7 +353,10 @@ def add_transaction():
                              (user_id,)).fetchall()
     conn.close()
     
-    return render_template('add_transaction.html', categories=categories)
+    # Get today's date in YYYY-MM-DD format
+    today_date = datetime.now().strftime('%Y-%m-%d')
+    
+    return render_template('add_transaction.html', categories=categories, today_date=today_date)
 
 @app.route('/transactions/delete/<int:transaction_id>')
 @login_required
@@ -458,6 +505,33 @@ def reports():
     return render_template('reports.html', monthly_data=monthly_data)
 
 if __name__ == '__main__':
+    # Initialize database if it doesn't exist
     if not os.path.exists(DATABASE):
         init_db()
-    app.run(debug=True)
+        print("✅ Database initialized successfully!")
+    
+    # Verify static folder exists
+    if not os.path.exists('static/css/style.css'):
+        print("⚠️  WARNING: static/css/style.css not found!")
+        print("   Create the static/css folder and add style.css for animations to work.")
+    else:
+        print("✅ Static CSS file found!")
+    
+    # Get port from environment variable (for Railway, Render, etc.)
+    port = int(os.environ.get('PORT', 5000))
+    
+    # Check if running in production
+    is_production = os.environ.get('FLASK_ENV') == 'production'
+    
+    print("🚀 Starting Finance Tracker...")
+    print(f"📍 Running on port: {port}")
+    if not is_production:
+        print(f"📍 Open your browser: http://127.0.0.1:{port}")
+    print("Press CTRL+C to quit\n")
+    
+    # Run with appropriate settings
+    app.run(
+        debug=not is_production,  # Disable debug in production
+        host='0.0.0.0',  # Allow external connections
+        port=port
+    )

@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mb-8 fade-in">
+    <h1 class="text-3xl font-bold text-gray-800">My Profile</h1>
+    <p class="text-gray-600">Manage your account information</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Profile Info Card -->
+    <div class="lg:col-span-2">
+        <div class="card-hover bg-white rounded-lg shadow p-6 slide-in">
+            <div class="flex items-center space-x-4 mb-6 pb-6 border-b">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                    {{ user.username[0]|upper }}
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">{{ user.username }}</h2>
+                    <p class="text-gray-600">
+                        <i class="fas fa-envelope mr-2"></i>{{ user.email or 'No email provided' }}
+                    </p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        <i class="fas fa-calendar mr-2"></i>Member since {{ user.created_at[:10] }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Account Information</h3>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-600">Username</p>
+                        <p class="text-lg font-semibold text-gray-800">{{ user.username }}</p>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-600">Email</p>
+                        <p class="text-lg font-semibold text-gray-800">{{ user.email or 'Not set' }}</p>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-600">Account Created</p>
+                        <p class="text-lg font-semibold text-gray-800">{{ user.created_at[:10] }}</p>
+                    </div>
+                    
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-600">User ID</p>
+                        <p class="text-lg font-semibold text-gray-800">#{{ user.id }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Card -->
+    <div class="lg:col-span-1">
+        <div class="card-hover bg-white rounded-lg shadow p-6 fade-in">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-chart-pie mr-2 text-blue-600"></i>Activity Stats
+            </h3>
+            
+            <div class="space-y-4">
+                <div class="stat-card p-4 bg-blue-50 rounded-lg border-l-4 border-blue-600">
+                    <p class="text-sm text-blue-600 font-semibold">Total Transactions</p>
+                    <p class="amount-display text-3xl font-bold text-blue-700">{{ transaction_count }}</p>
+                </div>
+                
+                <div class="stat-card p-4 bg-green-50 rounded-lg border-l-4 border-green-600">
+                    <p class="text-sm text-green-600 font-semibold">Categories Created</p>
+                    <p class="amount-display text-3xl font-bold text-green-700">{{ category_count }}</p>
+                </div>
+                
+                <div class="stat-card p-4 bg-purple-50 rounded-lg border-l-4 border-purple-600">
+                    <p class="text-sm text-purple-600 font-semibold">First Transaction</p>
+                    <p class="text-lg font-bold text-purple-700">
+                        {% if first_transaction.first_date %}
+                            {{ first_transaction.first_date }}
+                        {% else %}
+                            No transactions yet
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card-hover bg-white rounded-lg shadow p-6 mt-6 fade-in">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-bolt mr-2 text-yellow-600"></i>Quick Actions
+            </h3>
+            
+            <div class="space-y-2">
+                <a href="{{ url_for('add_transaction') }}" class="btn-primary block w-full bg-blue-600 text-white text-center py-3 rounded-lg hover:bg-blue-700 transition-all">
+                    <i class="fas fa-plus-circle mr-2"></i>Add Transaction
+                </a>
+                
+                <a href="{{ url_for('categories') }}" class="block w-full bg-gray-100 text-gray-700 text-center py-3 rounded-lg hover:bg-gray-200 transition-all">
+                    <i class="fas fa-tags mr-2"></i>Manage Categories
+                </a>
+                
+                <a href="{{ url_for('budgets') }}" class="block w-full bg-gray-100 text-gray-700 text-center py-3 rounded-lg hover:bg-gray-200 transition-all">
+                    <i class="fas fa-wallet mr-2"></i>Set Budgets
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Account Settings Section -->
+<div class="mt-6 card-hover bg-white rounded-lg shadow p-6 fade-in">
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+        <i class="fas fa-cog mr-2 text-gray-600"></i>Account Settings
+    </h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 border rounded-lg hover:border-blue-500 transition-all cursor-pointer">
+            <h4 class="font-semibold text-gray-800 mb-2">
+                <i class="fas fa-key mr-2 text-blue-600"></i>Change Password
+            </h4>
+            <p class="text-sm text-gray-600">Update your account password for better security</p>
+            <p class="text-xs text-gray-500 mt-2">Coming soon...</p>
+        </div>
+        
+        <div class="p-4 border rounded-lg hover:border-blue-500 transition-all cursor-pointer">
+            <h4 class="font-semibold text-gray-800 mb-2">
+                <i class="fas fa-envelope mr-2 text-green-600"></i>Update Email
+            </h4>
+            <p class="text-sm text-gray-600">Change your email address for notifications</p>
+            <p class="text-xs text-gray-500 mt-2">Coming soon...</p>
+        </div>
+        
+        <div class="p-4 border rounded-lg hover:border-blue-500 transition-all cursor-pointer">
+            <h4 class="font-semibold text-gray-800 mb-2">
+                <i class="fas fa-download mr-2 text-purple-600"></i>Export Data
+            </h4>
+            <p class="text-sm text-gray-600">Download your financial data as CSV</p>
+            <p class="text-xs text-gray-500 mt-2">Coming soon...</p>
+        </div>
+        
+        <div class="p-4 border border-red-200 rounded-lg hover:border-red-500 transition-all cursor-pointer">
+            <h4 class="font-semibold text-red-600 mb-2">
+                <i class="fas fa-trash-alt mr-2"></i>Delete Account
+            </h4>
+            <p class="text-sm text-gray-600">Permanently delete your account and data</p>
+            <p class="text-xs text-gray-500 mt-2">Coming soon...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
