@@ -528,10 +528,12 @@ if __name__ == '__main__':
     if not is_production:
         print(f"📍 Open your browser: http://127.0.0.1:{port}")
     print("Press CTRL+C to quit\n")
-    
+
+if __name__ == "__main__":
     # Run with appropriate settings
     app.run(
         debug=not is_production,  # Disable debug in production
-        host='0.0.0.0',  # Allow external connections
+        host="0.0.0.0",           # Allow external connections
         port=port
     )
+
