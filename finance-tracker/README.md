@@ -76,6 +76,13 @@ Open your web browser and navigate to:
 ```
 http://127.0.0.1:5000
 ```
+### Live Demo
+The application is deployed and accessible online at:
+```
+http:financeapp.pythonanywhere.com
+```
+No installation needed - just visit the URL and start using the app!
+(Deployed on PythonAnywhere - a free cloud hosting platform for Python web applications)
 
 ### First Time Setup
 1. Register a new account at `/register`
@@ -240,7 +247,7 @@ This project was developed as a final project for a Computer Science course, dem
 Claude AI was used minimally during development for:
 - Debugging assistance and error corrections
 - Suggestions for CSS animation improvements
-- Code structure ideas and best practices
+- Code structure ideas and description
 
 All code is fully understood. The core logic, database design, and feature implementation decisions were made independently.
 
