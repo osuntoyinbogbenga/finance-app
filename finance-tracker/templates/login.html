@@ -1,21 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-    /* Override the base body background for login page only */
-    body {
-        background: #ffffff;
-        min-height: 100vh;
-    }
-    
-    /* Remove default padding from main to allow full-screen layout */
-    main {
-        padding: 0 !important;
-        max-width: none !important;
-    }
-</style>
-
-<div class="min-h-screen flex items-center justify-center px-4 bg-white">
+<div class="min-h-screen flex items-center justify-center px-4" style="background: #ffffff; margin: -2rem -1rem;">
     <div class="max-w-md w-full bg-white rounded-lg shadow-2xl p-8 fade-in border border-gray-100">
         <div class="text-center mb-8">
             <i class="fas fa-wallet text-5xl text-blue-600 mb-4 icon-bounce"></i>
@@ -48,4 +34,11 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Force white background on body for this page
+    document.body.style.backgroundColor = '#ffffff';
+    document.querySelector('main').style.padding = '0';
+    document.querySelector('main').style.maxWidth = 'none';
+</script>
 {% endblock %}
