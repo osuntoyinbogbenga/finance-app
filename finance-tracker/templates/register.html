@@ -4,16 +4,8 @@
 <style>
     /* Override the base body background for register page only */
     body {
-        background: linear-gradient(-45deg, #FF6B6B, #FF8E8E, #FF69B4, #DA70D6, #BA55D3);
-        background-size: 400% 400%;
-        animation: gradientShift 15s ease infinite;
+        background: #ffffff;
         min-height: 100vh;
-    }
-    
-    @keyframes gradientShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
     }
     
     /* Remove default padding from main to allow full-screen layout */
@@ -23,8 +15,8 @@
     }
 </style>
 
-<div class="min-h-screen flex items-center justify-center px-4">
-    <div class="max-w-md w-full bg-white rounded-lg shadow-2xl p-8 fade-in">
+<div class="min-h-screen flex items-center justify-center px-4 bg-white">
+    <div class="max-w-md w-full bg-white rounded-lg shadow-2xl p-8 fade-in border border-gray-100">
         <div class="text-center mb-8">
             <i class="fas fa-user-plus text-5xl text-blue-600 mb-4 icon-bounce"></i>
             <h2 class="text-3xl font-bold text-gray-800">Create Account</h2>
