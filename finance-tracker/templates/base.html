@@ -6,69 +6,80 @@
     <title>{% block title %}Finance Tracker{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <style>
+        /* Force white background on login/register pages - override everything */
+        {% if request.endpoint in ['login', 'register'] %}
+        body {
+            background: #ffffff !important;
+            background-image: none !important;
+            background-color: #ffffff !important;
+        }
+        body *, body div {
+            background-image: none !important;
+        }
+        .gradient-bg {
+            background: transparent !important;
+            animation: none !important;
+        }
+        {% endif %}
+    </style>
 </head>
-
-<body class="{% block body_class %}bg-gray-50{% endblock %}">
-
+<body class="{% if request.endpoint not in ['login', 'register'] %}bg-gray-50{% else %}bg-white{% endif %}" style="{% if request.endpoint in ['login', 'register'] %}background: #ffffff !important;{% endif %}">
     {% if session.user_id %}
     <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
                 <div class="flex space-x-8">
                     <a href="{{ url_for('dashboard') }}" class="nav-link flex items-center px-3 py-2 text-gray-700">
-                        <i class="fas fa-chart-line mr-2"></i> Dashboard
+                        <i class="fas fa-chart-line mr-2 icon-bounce"></i> Dashboard
                     </a>
                     <a href="{{ url_for('transactions') }}" class="nav-link flex items-center px-3 py-2 text-gray-700">
-                        <i class="fas fa-exchange-alt mr-2"></i> Transactions
+                        <i class="fas fa-exchange-alt mr-2 icon-bounce"></i> Transactions
                     </a>
                     <a href="{{ url_for('categories') }}" class="nav-link flex items-center px-3 py-2 text-gray-700">
-                        <i class="fas fa-tags mr-2"></i> Categories
+                        <i class="fas fa-tags mr-2 icon-bounce"></i> Categories
                     </a>
                     <a href="{{ url_for('budgets') }}" class="nav-link flex items-center px-3 py-2 text-gray-700">
-                        <i class="fas fa-wallet mr-2"></i> Budgets
+                        <i class="fas fa-wallet mr-2 icon-bounce"></i> Budgets
                     </a>
                     <a href="{{ url_for('reports') }}" class="nav-link flex items-center px-3 py-2 text-gray-700">
-                        <i class="fas fa-chart-bar mr-2"></i> Reports
+                        <i class="fas fa-chart-bar mr-2 icon-bounce"></i> Reports
                     </a>
                 </div>
-
                 <div class="flex items-center space-x-4">
+                    <!-- Profile Dropdown -->
                     <div class="relative profile-dropdown">
-                        <button onclick="toggleDropdown()" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
+                        <button onclick="toggleDropdown()" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 focus:outline-none transition-all">
                             <i class="fas fa-user-circle text-2xl"></i>
                             <span class="font-medium">{{ session.username }}</span>
                             <i class="fas fa-chevron-down text-xs"></i>
                         </button>
-
-                        <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 border">
-                            <a href="{{ url_for('profile') }}" class="block px-4 py-2 text-gray-700 hover:bg-blue-50">
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border">
+                            <a href="{{ url_for('profile') }}" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 transition-all">
                                 <i class="fas fa-user mr-2"></i>My Profile
                             </a>
                             <div class="border-t my-1"></div>
-                            <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-red-600 hover:bg-red-50">
+                            <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-red-600 hover:bg-red-50 transition-all">
                                 <i class="fas fa-sign-out-alt mr-2"></i>Logout
                             </a>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </nav>
     {% endif %}
 
-    <main class="{% block main_class %}max-w-7xl mx-auto px-4 py-8{% endblock %}">
+    <main class="{% if request.endpoint not in ['login', 'register'] %}max-w-7xl mx-auto px-4 py-8{% endif %}">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                <div class="mb-4 p-4 rounded-lg flex justify-between
-                    {% if category == 'success' %}bg-green-100 text-green-700
-                    {% elif category == 'danger' %}bg-red-100 text-red-700
-                    {% elif category == 'warning' %}bg-yellow-100 text-yellow-700
-                    {% else %}bg-blue-100 text-blue-700{% endif %}">
-                    <span>{{ message }}</span>
-                    <button onclick="this.parentElement.remove()">×</button>
+                <div class="alert mb-4 p-4 rounded-lg flex items-center justify-between {% if category == 'success' %}bg-green-100 text-green-700 border-l-4 border-green-500{% elif category == 'danger' %}bg-red-100 text-red-700 border-l-4 border-red-500{% elif category == 'warning' %}bg-yellow-100 text-yellow-700 border-l-4 border-yellow-500{% else %}bg-blue-100 text-blue-700 border-l-4 border-blue-500{% endif %}">
+                    <span><i class="fas fa-info-circle mr-2"></i>{{ message }}</span>
+                    <button onclick="this.parentElement.remove()" class="alert-close text-xl font-bold hover:opacity-70">×</button>
                 </div>
                 {% endfor %}
             {% endif %}
@@ -77,27 +88,34 @@
         {% block content %}{% endblock %}
     </main>
 
-    {% if session.user_id %}
+    {% if request.endpoint not in ['login', 'register'] %}
     <footer class="bg-white shadow-lg mt-12 py-6">
         <div class="max-w-7xl mx-auto px-4 text-center text-gray-600">
-            <p>© 2026 Personal Finance Tracker</p>
+            <p class="fade-in">© 2026 Personal Finance Tracker. Built with <i class="fas fa-heart text-red-500"></i> for better financial management.</p>
         </div>
     </footer>
     {% endif %}
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <script>
+        // Dropdown toggle function
         function toggleDropdown() {
-            document.getElementById('dropdownMenu').classList.toggle('hidden');
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('hidden');
         }
+        
+        // Close dropdown when clicking outside
         window.addEventListener('click', function(e) {
             const dropdown = document.getElementById('dropdownMenu');
             const button = document.querySelector('.profile-dropdown button');
+            
             if (dropdown && button && !button.contains(e.target) && !dropdown.contains(e.target)) {
                 dropdown.classList.add('hidden');
             }
         });
     </script>
-
+    
     {% block scripts %}{% endblock %}
 </body>
 </html>
